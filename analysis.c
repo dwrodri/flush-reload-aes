@@ -47,6 +47,7 @@ int main(int argc, char** argv){
         printf("Number samples used: %i\n", i);
 #endif
 }
+
 void saveResult()
 {
     int i, j;
@@ -57,6 +58,7 @@ void saveResult()
 		fprintf(resultFP, "%f\n",times[i][j]/counter[i][j]);
 	}
 }
+
 void processTrace()
 {
     int i;
@@ -68,11 +70,13 @@ void processTrace()
         }
 	}
 }
+
 bool loadTrace()
 {
 	return fread(timing, sizeof(uint32_t), 1, timingFP) &&
             fread(ciphertext, sizeof(uint8_t), 16, cipherFP);
 }
+
 void resetCounter()
 {
     int i, j;
@@ -82,6 +86,7 @@ void resetCounter()
 		}
 	}
 }
+
 void init()
 {
     /* allocate memory for one trace */
@@ -94,6 +99,7 @@ void init()
     resultFP = fopen(resultFileName, "w");
     resetCounter();
 }
+
 void finish()
 {
    free(ciphertext);
