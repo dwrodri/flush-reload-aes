@@ -5,6 +5,9 @@
 attacker 
 victim
 analysis 
+benchmark
+*.png
+*.txt
 
 ### C ###
 # Prerequisites
