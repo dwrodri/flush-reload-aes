@@ -5,6 +5,7 @@
 attacker 
 victim
 analysis 
+xeon_data/
 benchmark
 *.png
 *.txt

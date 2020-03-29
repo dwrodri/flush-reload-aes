@@ -1,5 +1,16 @@
 # Lab 5
 
+# Instructions
+## Derek Rodriguez
+
+## Microbenchmark
+I have modified the provided Makefile to compile the microbenchmark with either 
+`make all` or `make benchmark`. The results are written to stdout in a CSV
+format.
+
+## Offline analysis
+
+
 ## OpenSSL library
 
 ```bash

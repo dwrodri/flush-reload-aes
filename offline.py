@@ -1,8 +1,5 @@
-import tqdm
 import sys
-import scipy.stats
 import numpy as np
-import matplotlib.pyplot as plt
 
 inv_s_box = np.array([
     0x52,
@@ -264,10 +261,26 @@ inv_s_box = np.array([
 ], dtype=np.uint8)
 
 if __name__ == "__main__":
-    ciphers = np.fromfile('cipher',dtype=np.uint8)
-    ciphers = ciphers.reshape(16,len(ciphers)//16)
-    selected_cols = ciphers[:,2::4]
-    times = np.fromfile('timing',dtype=np.uint32)
-    zscores = scipy.stats.zscore(times)
-    plt.plot(times,'.')
-    plt.show()
+    if len(sys.argv) != 2:
+        print("Usage: python offline.py [ciphertext file] [timing file]")
+    # load ciphertexts, reshape, and selected target row
+    ciphers = np.fromfile(sys.argv[1],dtype=np.uint8)
+    ciphers = ciphers.reshape((len(ciphers)//16),16)[:,2::4]
+    # load timings, and get bottom 7% as per lecture
+    times = np.fromfile(sys.argv[2],dtype=np.uint32)
+    # This is the 75th percentile of the hits
+    threshold = 48
+    selected_idx = np.where(times < threshold)[0]
+    sample_size = len(selected_idx)
+    selected_times = np.take(times,selected_idx)
+    # get corresponding ciphertexts, and filter out desired bytes from each ciphertext
+    selected_cipher_bytes = np.take(ciphers,selected_idx,axis=0).reshape(4*sample_size)
+    # instantiate counters and key candidates
+    key_candidates = np.vstack(np.mgrid[:sample_size,:4,:256][-1].astype(np.uint8))
+    # get intermediate state, and then make shape usable for different
+    queries = np.take(inv_s_box, selected_cipher_bytes[:,None] ^ key_candidates).reshape((sample_size,4,256))
+    # Filter candidate results
+    queries = queries < 16
+    # count up results
+    queries = queries.sum(axis=0)
+    print(np.argmax(queries,axis=1))
